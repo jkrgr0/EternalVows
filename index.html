@@ -196,7 +196,7 @@
 
     <section id="rsvp">
       <div class="container">
-        <h2>RSVP</h2>
+        <h2 id="rsvpHeader">RSVP</h2>
         <p class="muted" id="rsvpText">Please let us know if you can make it.</p>
         <div class="btns" id="rsvpBtns"></div>
       </div>
@@ -204,28 +204,28 @@
 
     <section id="story">
       <div class="container">
-        <h2>Our Story</h2>
+        <h2 id="storyHeader">Our Story</h2>
         <p id="storyText" class="muted"></p>
       </div>
     </section>
 
     <section id="schedule">
       <div class="container">
-        <h2>Schedule</h2>
+        <h2 id="scheduleHeader">Schedule</h2>
         <div id="scheduleGrid" class="grid"></div>
       </div>
     </section>
 
     <section id="venue">
       <div class="container">
-  <h2 id="venueTitle">Venue</h2>
-  <div id="venueGrid" class="grid"></div>
+        <h2 id="venueTitle">Venue</h2>
+        <div id="venueGrid" class="grid"></div>
       </div>
     </section>
 
     <section id="photoshare">
       <div class="container">
-        <h2>Share Your Photos</h2>
+        <h2 id="photoshareHeader">Share Your Photos</h2>
         <p class="muted" id="photoshareText">We’d love to see the day through your eyes. Add your pics to our shared album!</p>
         <div class="btns" id="photoshareBtns"></div>
       </div>
@@ -233,14 +233,14 @@
 
     <section id="registry">
       <div class="container">
-        <h2>Registry</h2>
+        <h2 id="registryHeader">Registry</h2>
         <div class="btns" id="registryBtns"></div>
       </div>
     </section>
 
     <section id="faqs">
       <div class="container">
-        <h2>FAQ</h2>
+        <h2 id="faqHeader">FAQ</h2>
         <div id="faqList" class="grid two"></div>
       </div>
     </section>
@@ -354,16 +354,17 @@
     };
     const show = (el, on) => el?.classList.toggle('hide', !on);
 
-    function renderTopButtons(flags, venues) {
+    function renderTopButtons(flags, venues, cfg) {
       const top = $('topButtons'); if (!top) return; top.innerHTML='';
-  // Put RSVP first as a primary call-to-action
-  if (flags.rsvp) addBtn(top, 'RSVP', '#rsvp', true);
-      if (flags.story) addBtn(top, 'Story', '#story');
-      if (flags.schedule) addBtn(top, 'Schedule', '#schedule');
-      if (flags.venue) addBtn(top, venues.length > 1 ? 'Venues' : 'Venue', '#venue');
-  if (flags.photo) addBtn(top, 'Share Photos', '#photoshare');
-      if (flags.registry) addBtn(top, 'Registry', '#registry');
-      if (flags.faqs) addBtn(top, 'FAQ', '#faqs');
+      const btnLabels = cfg?.ui?.buttonLabels || {};
+      // Put RSVP first as a primary call-to-action
+      if (flags.rsvp) addBtn(top, btnLabels.rsvp || 'RSVP', '#rsvp', true);
+      if (flags.story) addBtn(top, btnLabels.story || 'Story', '#story');
+      if (flags.schedule) addBtn(top, btnLabels.schedule || 'Schedule', '#schedule');
+      if (flags.venue) addBtn(top, venues.length > 1 ? (btnLabels.venues || 'Venues') : (btnLabels.venue || 'Venue'), '#venue');
+      if (flags.photo) addBtn(top, btnLabels.photoshare || 'Share Photos', '#photoshare');
+      if (flags.registry) addBtn(top, btnLabels.registry || 'Registry', '#registry');
+      if (flags.faqs) addBtn(top, btnLabels.faqs || 'FAQ', '#faqs');
     }
 
     function renderSchedule(items) {
@@ -428,7 +429,8 @@
         `;
         grid.appendChild(card);
       }
-      const title = $('venueTitle'); if (title) title.textContent = venues.length > 1 ? 'Venues' : 'Venue';
+      const title = $('venueTitle');
+      if (title) title.textContent = venues.length > 1 ? (window._cfg?.ui?.sectionTitles?.venues || 'Venues') : (window._cfg?.ui?.sectionTitles?.venue || 'Venue');
     }
 
     function renderPhotoShare(cfg) {
@@ -461,23 +463,32 @@
 
     function populate(cfg) {
       applyThemeColors(cfg);
+      window._cfg = cfg; // for use in other functions
+      const sectionTitles = cfg.ui?.sectionTitles || {};
       const title = cfg.ui?.title || cfg.title || cfg.coupleNames; if (title) document.title = title;
       setText('monogram', cfg.ui?.monogram ?? 'You’re invited');
       setText('names', cfg.coupleNames ?? 'Our Wedding');
       setText('dateDisplay', cfg.dateDisplay ?? '');
       setText('locationShort', cfg.locationShort ?? '');
+      // Section headers
+      setText('rsvpHeader', sectionTitles.rsvp || 'RSVP');
+      setText('storyHeader', sectionTitles.story || 'Our Story');
+      setText('scheduleHeader', sectionTitles.schedule || 'Schedule');
+      setText('photoshareHeader', sectionTitles.photoshare || 'Share Your Photos');
+      setText('registryHeader', sectionTitles.registry || 'Registry');
+      setText('faqHeader', sectionTitles.faqs || 'FAQ');
       // toggle bullet between date and location
       const dd = $('dateDisplay'), ls = $('locationShort'); const bullet = dd?.nextElementSibling; const hasBoth = !!dd?.textContent?.trim() && !!ls?.textContent?.trim(); if (bullet) bullet.classList.toggle('hide', !hasBoth);
       setText('storyText', cfg.story ?? '');
 
       const hasStory = !!(cfg.story && String(cfg.story).trim()); show($('story'), hasStory);
-  const hasRSVP = renderRSVP(cfg);
+      const hasRSVP = renderRSVP(cfg);
       const hasSchedule = Array.isArray(cfg.schedule) && cfg.schedule.length > 0; if (hasSchedule) renderSchedule(cfg.schedule); show($('schedule'), hasSchedule);
       const venues = normalizeVenues(cfg); const hasVenue = venues.length > 0; if (hasVenue) renderVenues(venues); show($('venue'), hasVenue);
       const hasPhoto = renderPhotoShare(cfg);
       const hasReg = renderRegistry(cfg.registry);
       const hasFaq = renderFaqs(cfg.faqs);
-  renderTopButtons({ rsvp: hasRSVP, story: hasStory, schedule: hasSchedule, venue: hasVenue, photo: hasPhoto, registry: hasReg, faqs: hasFaq }, venues);
+      renderTopButtons({ rsvp: hasRSVP, story: hasStory, schedule: hasSchedule, venue: hasVenue, photo: hasPhoto, registry: hasReg, faqs: hasFaq }, venues, cfg);
       setText('footerNote', cfg.ui?.footerNote ?? 'Made with ♥ for family and friends.');
     }
 

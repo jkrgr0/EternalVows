@@ -78,6 +78,12 @@ Notes:
     - Keys: `baseTop`, `baseBottom`, `radial1`, `radial2` (CSS colors).
     - Alternate keys also accepted in `ui.colors` for convenience: `bgBaseTop`, `bgBaseBottom`, `bgRadial1`, `bgRadial2` (or kebab-case `bg-base-top`, etc.).
     - Defaults to a warm golden palette if not provided.
+  - `sectionTitles`: Modify the section titles
+    - Keys: `rsvp`, `story`, `schedule`, `venue`, `venues`, `photoshare`, `registry`, `faqs`
+    - Use this to set the section titles in your language.
+  - `buttonLabels`: Modify the labels of the buttons
+    - Keys: `rsvp`, `story`, `schedule`, `venue`, `venues`, `photoshare`, `registry`, `faqs`
+    - Use this to set the section titles in your language.
 
 Example (default with multiple venues):
 
@@ -140,6 +146,24 @@ ui:
     card: "rgba(255,255,255,0.08)"
     maxw: "1024px"
     blur: "saturate(140%) blur(6px)"
+  sectionTitles:
+    rsvp: "RSVP"
+    story: "Our Story"
+    schedule: "Schedule"
+    venue: "Venue"
+    venues: "Venues"
+    photoshare: "Share Your Photos"
+    registry: "Registry"
+    faqs: "FAQ"
+  buttonLabels:
+    rsvp: "RSVP"
+    story: "Story"
+    schedule: "Schedule"
+    venue: "Venue"
+    venues: "Venues"
+    photoshare: "Share Photos"
+    registry: "Registry"
+    faqs: "FAQ"
   background:
     baseTop: "#2d2616"
     baseBottom: "#1f1a10"
